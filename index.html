@@ -11,25 +11,28 @@
         <h1>Barrett Universal II 人工晶状体计算器</h1>
         
         <form id="calculatorForm">
+            <!-- 0. 左右眼选择 -->
             <div class="input-group">
-                <label for="patientName">患者姓名:</label>
-                <input type="text" id="patientName" required>
+                <label for="eyeSide">选择眼别:</label>
+                <select id="eyeSide" required>
+                    <option value="OD">右眼 (OD)</option>
+                    <option value="OS">左眼 (OS)</option>
+                </select>
             </div>
             
+            <!-- 1. 医生姓名 -->
             <div class="input-group">
                 <label for="doctorName">医生姓名:</label>
                 <input type="text" id="doctorName" required>
             </div>
             
+            <!-- 2. 患者姓名 -->
             <div class="input-group">
-                <label for="lensFactor">Lens Factor:</label>
-                <input type="number" step="0.01" id="lensFactor" required
-                    min="-2" max="5"
-                    placeholder="范围: -2 到 5"
-                    value="1.99">
-                <small class="input-hint">常用值: 1.78 或 1.99</small>
+                <label for="patientName">患者姓名:</label>
+                <input type="text" id="patientName" required>
             </div>
             
+            <!-- 3. A Constant -->
             <div class="input-group">
                 <label for="aConstant">A Constant:</label>
                 <input type="number" step="0.01" id="aConstant" required
@@ -39,22 +42,17 @@
                 <small class="input-hint">常用值: 118.8 或 119.2</small>
             </div>
             
+            <!-- 4. Lens Factor -->
             <div class="input-group">
-                <label for="k1">K1 (最平坦轴):</label>
-                <input type="number" step="0.01" id="k1" required 
-                    min="30" max="60" 
-                    placeholder="范围: 30-60 D">
-                <small class="input-hint">正常范围: 40-48 D</small>
+                <label for="lensFactor">Lens Factor:</label>
+                <input type="number" step="0.01" id="lensFactor" required
+                    min="-2" max="5"
+                    placeholder="范围: -2 到 5"
+                    value="1.99">
+                <small class="input-hint">常用值: 1.78 或 1.99</small>
             </div>
             
-            <div class="input-group">
-                <label for="k2">K2 (最陡峭轴):</label>
-                <input type="number" step="0.01" id="k2" required 
-                    min="30" max="60" 
-                    placeholder="范围: 30-60 D">
-                <small class="input-hint">正常范围: 40-48 D</small>
-            </div>
-            
+            <!-- 5. 眼轴长度 -->
             <div class="input-group">
                 <label for="axialLength">眼轴长度 (mm):</label>
                 <input type="number" step="0.01" id="axialLength" required 
@@ -63,6 +61,7 @@
                 <small class="input-hint">正常范围: 22-26 mm</small>
             </div>
             
+            <!-- 6. 前房深度 -->
             <div class="input-group">
                 <label for="acd">前房深度 (mm):</label>
                 <input type="number" step="0.01" id="acd" required 
@@ -71,6 +70,25 @@
                 <small class="input-hint">正常范围: 2.5-3.5 mm</small>
             </div>
             
+            <!-- 7. K1 -->
+            <div class="input-group">
+                <label for="k1">K1 (最平坦轴):</label>
+                <input type="number" step="0.01" id="k1" required 
+                    min="30" max="60" 
+                    placeholder="范围: 30-60 D">
+                <small class="input-hint">正常范围: 40-48 D</small>
+            </div>
+            
+            <!-- 8. K2 -->
+            <div class="input-group">
+                <label for="k2">K2 (最陡峭轴):</label>
+                <input type="number" step="0.01" id="k2" required 
+                    min="30" max="60" 
+                    placeholder="范围: 30-60 D">
+                <small class="input-hint">正常范围: 40-48 D</small>
+            </div>
+            
+            <!-- 9. 目标屈光度 -->
             <div class="input-group">
                 <label for="targetRefraction">目标屈光度:</label>
                 <input type="number" step="0.25" id="targetRefraction" required 
@@ -86,45 +104,48 @@
         <div id="results" class="hidden">
             <h2>计算结果</h2>
             <div class="print-header">
-                <p><strong>患者姓名：</strong><span id="printPatientName">--</span></p>
+                <p><strong>眼别：</strong><span id="printEyeSide">--</span></p>
                 <p><strong>医生姓名：</strong><span id="printDoctorName">--</span></p>
+                <p><strong>患者姓名：</strong><span id="printPatientName">--</span></p>
                 <p><strong>计算日期：</strong><span id="printDate">--</span></p>
             </div>
-            <div class="result-item">
-                <span>K1 (最平坦轴):</span>
-                <span id="printK1">--</span>
-            </div>
-            <div class="result-item">
-                <span>K2 (最陡峭轴):</span>
-                <span id="printK2">--</span>
-            </div>
-            <div class="result-item">
-                <span>眼轴长度:</span>
-                <span id="printAxialLength">--</span>
-            </div>
-            <div class="result-item">
-                <span>前房深度:</span>
-                <span id="printAcd">--</span>
-            </div>
-            <div class="result-item">
-                <span>目标屈光度:</span>
-                <span id="printTargetRefraction">--</span>
-            </div>
-            <div class="result-item">
-                <span>Lens Factor:</span>
-                <span id="printLensFactor">--</span>
-            </div>
-            <div class="result-item">
-                <span>A Constant:</span>
-                <span id="printAConstant">--</span>
-            </div>
-            <div class="result-item">
-                <span>建议IOL度数:</span>
-                <span id="iolPower">--</span>
-            </div>
-            <div class="result-item">
-                <span>预期术后屈光度:</span>
-                <span id="predictedRefraction">--</span>
+            <div class="results-group">
+                <div class="result-item">
+                    <span>A Constant:</span>
+                    <span id="printAConstant">--</span>
+                </div>
+                <div class="result-item">
+                    <span>Lens Factor:</span>
+                    <span id="printLensFactor">--</span>
+                </div>
+                <div class="result-item">
+                    <span>眼轴长度:</span>
+                    <span id="printAxialLength">--</span>
+                </div>
+                <div class="result-item">
+                    <span>前房深度:</span>
+                    <span id="printAcd">--</span>
+                </div>
+                <div class="result-item">
+                    <span>K1 (最平坦轴):</span>
+                    <span id="printK1">--</span>
+                </div>
+                <div class="result-item">
+                    <span>K2 (最陡峭轴):</span>
+                    <span id="printK2">--</span>
+                </div>
+                <div class="result-item">
+                    <span>目标屈光度:</span>
+                    <span id="printTargetRefraction">--</span>
+                </div>
+                <div class="result-item highlight">
+                    <span>建议IOL度数:</span>
+                    <span id="iolPower">--</span>
+                </div>
+                <div class="result-item highlight">
+                    <span>预期术后屈光度:</span>
+                    <span id="predictedRefraction">--</span>
+                </div>
             </div>
             
             <div class="button-group">

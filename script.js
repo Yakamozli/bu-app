@@ -1,37 +1,43 @@
 document.getElementById('calculatorForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
-    // 获取输入值
-    const k1 = parseFloat(document.getElementById('k1').value);
-    const k2 = parseFloat(document.getElementById('k2').value);
-    const axialLength = parseFloat(document.getElementById('axialLength').value);
-    const acd = parseFloat(document.getElementById('acd').value);
-    const targetRefraction = parseFloat(document.getElementById('targetRefraction').value);
-    const patientName = document.getElementById('patientName').value;
-    const doctorName = document.getElementById('doctorName').value;
-    const lensFactor = parseFloat(document.getElementById('lensFactor').value);
-    const aConstant = parseFloat(document.getElementById('aConstant').value);
-    
-    // 验证所有输入
-    const validations = [
-        validateInput(document.getElementById('k1'), 30, 60, 40, 48),
-        validateInput(document.getElementById('k2'), 30, 60, 40, 48),
-        validateInput(document.getElementById('axialLength'), 12, 38, 22, 26),
-        validateInput(document.getElementById('acd'), 0, 6, 2.5, 3.5),
-        validateInput(document.getElementById('targetRefraction'), -3, 3, -0.5, 0),
-        validateInput(document.getElementById('lensFactor'), -2, 5, 1.78, 1.99),
-        validateInput(document.getElementById('aConstant'), 112, 125, 118.4, 119.0)
-    ];
-    
-    // 如果有任何验证失败，停止计算
-    if (validations.includes(false)) {
-        return;
-    }
-    
-    // Barrett Universal II 公式计算
-    const meanK = (k1 + k2) / 2;
-    
     try {
+        // 获取输入值
+        const eyeSide = document.getElementById('eyeSide').value;
+        const k1 = parseFloat(document.getElementById('k1').value);
+        const k2 = parseFloat(document.getElementById('k2').value);
+        const axialLength = parseFloat(document.getElementById('axialLength').value);
+        const acd = parseFloat(document.getElementById('acd').value);
+        const targetRefraction = parseFloat(document.getElementById('targetRefraction').value);
+        const patientName = document.getElementById('patientName').value;
+        const doctorName = document.getElementById('doctorName').value;
+        const lensFactor = parseFloat(document.getElementById('lensFactor').value);
+        const aConstant = parseFloat(document.getElementById('aConstant').value);
+        
+        // 检查是否有任何输入为NaN
+        if ([k1, k2, axialLength, acd, targetRefraction, lensFactor, aConstant].some(isNaN)) {
+            throw new Error('请填写所有必需的数值字段');
+        }
+        
+        // 验证所有输入
+        const validations = [
+            validateInput(document.getElementById('k1'), 30, 60, 40, 48),
+            validateInput(document.getElementById('k2'), 30, 60, 40, 48),
+            validateInput(document.getElementById('axialLength'), 12, 38, 22, 26),
+            validateInput(document.getElementById('acd'), 0, 6, 2.5, 3.5),
+            validateInput(document.getElementById('targetRefraction'), -3, 3, -0.5, 0),
+            validateInput(document.getElementById('lensFactor'), -2, 5, 1.78, 1.99),
+            validateInput(document.getElementById('aConstant'), 112, 125, 118.8, 119.2)
+        ];
+        
+        // 如果有任何验证失败，停止计算
+        if (validations.includes(false)) {
+            throw new Error('请检查输入值是否在有效范围内');
+        }
+        
+        // Barrett Universal II 公式计算
+        const meanK = (k1 + k2) / 2;
+        
         const estimatedIOLPower = calculateIOLPower(
             meanK, 
             axialLength, 
@@ -42,6 +48,7 @@ document.getElementById('calculatorForm').addEventListener('submit', function(e)
         );
         
         // 更新打印结果显示
+        document.getElementById('printEyeSide').textContent = eyeSide === 'OD' ? '右眼 (OD)' : '左眼 (OS)';
         document.getElementById('printPatientName').textContent = patientName;
         document.getElementById('printDoctorName').textContent = doctorName;
         document.getElementById('printDate').textContent = new Date().toLocaleString();
@@ -58,7 +65,7 @@ document.getElementById('calculatorForm').addEventListener('submit', function(e)
         // 显示结果
         document.getElementById('results').classList.remove('hidden');
     } catch (error) {
-        alert('计算过程中出现错误，请检查输入值是否合理。');
+        alert(error.message || '计算过程中出现错误，请检查输入值是否合理。');
         console.error('计算错误:', error);
     }
 });
@@ -86,7 +93,7 @@ function calculateIOLPower(meanK, axialLength, acd, targetRefraction, lensFactor
         power += ((n2 - n1) / (n1 * (axialLength - elp))) * meanK;
         
         // 6. A常数调整
-        const aConstantFactor = (aConstant - 118.4) * 0.70;  // 增加A常数影响
+        const aConstantFactor = (aConstant - 118.8) * 0.70;  // 增加A常数影响
         power += aConstantFactor;
         
         // 7. 目标屈光度调整
@@ -157,6 +164,7 @@ document.getElementById('printButton').addEventListener('click', function() {
 // 保存功能
 document.getElementById('saveButton').addEventListener('click', function() {
     const currentData = {
+        eyeSide: document.getElementById('eyeSide').value,
         date: new Date().toLocaleString(),
         patientName: document.getElementById('patientName').value,
         doctorName: document.getElementById('doctorName').value,
@@ -218,19 +226,23 @@ function displaySavedRecords() {
         recordDiv.className = 'record-item';
         recordDiv.innerHTML = `
             <div class="record-header">
-                <p><strong>日期：</strong>${record.date}</p>
                 <button class="delete-button" onclick="deleteRecord(${index})">删除</button>
             </div>
-            <p><strong>患者姓名：</strong>${record.patientName}</p>
-            <p><strong>医生姓名：</strong>${record.doctorName}</p>
-            <p><strong>K1：</strong>${record.k1} | <strong>K2：</strong>${record.k2}</p>
-            <p><strong>眼轴长度：</strong>${record.axialLength}mm</p>
-            <p><strong>前房深度：</strong>${record.acd}mm</p>
-            <p><strong>目标屈光度：</strong>${record.targetRefraction}</p>
-            <p><strong>Lens Factor：</strong>${record.lensFactor}</p>
-            <p><strong>建议IOL度数：</strong>${record.iolPower}</p>
-            <p><strong>预期术后屈光度：</strong>${record.predictedRefraction}</p>
-            <p><strong>A Constant：</strong>${record.aConstant}</p>
+            <p><strong>眼别：</strong><span>${record.eyeSide === 'OD' ? '右眼 (OD)' : '左眼 (OS)'}</span></p>
+            <p><strong>医生姓名：</strong><span>${record.doctorName}</span></p>
+            <p><strong>患者姓名：</strong><span>${record.patientName}</span></p>
+            <p><strong>计算日期：</strong><span>${record.date}</span></p>
+            <p><strong>A Constant：</strong><span>${record.aConstant}</span></p>
+            <p><strong>Lens Factor：</strong><span>${record.lensFactor}</span></p>
+            <p><strong>眼轴长度：</strong><span>${record.axialLength}mm</span></p>
+            <p><strong>前房深度：</strong><span>${record.acd}mm</span></p>
+            <p><strong>K1：</strong><span>${record.k1}D</span></p>
+            <p><strong>K2：</strong><span>${record.k2}D</span></p>
+            <p><strong>目标屈光度：</strong><span>${record.targetRefraction}D</span></p>
+            <div class="highlight">
+                <p><strong>建议IOL度数：</strong><span>${record.iolPower}</span></p>
+                <p><strong>预期术后屈光度：</strong><span>${record.predictedRefraction}</span></p>
+            </div>
         `;
         recordsList.appendChild(recordDiv);
     });
@@ -279,7 +291,7 @@ const validationRanges = {
     'acd': [0, 6, 2.5, 3.5],
     'targetRefraction': [-3, 3, -0.5, 0],
     'lensFactor': [-2, 5, 1.78, 1.99],
-    'aConstant': [112, 125, 118.4, 119.0]
+    'aConstant': [112, 125, 118.8, 119.2]
 };
 
 inputs.forEach(inputId => {
